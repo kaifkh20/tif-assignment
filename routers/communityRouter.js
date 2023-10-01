@@ -36,7 +36,7 @@ router.post('/',auth,async(req,res)=>{
         res.send(resJson)
 
     }catch(err){
-        res.status(400).send(`Not Able To Create A Community ${e}`)
+        res.status(400).send(`Not Able To Create A Community ${err}`)
     }
 })
 
@@ -83,6 +83,7 @@ router.get('/:id/members',async(req,res)=>{
         //Modifying the Response 
 
         let resJson = getJson
+
         resJson["content"]["meta"]["total"] = count
         resJson["content"]["meta"]["page"] = 1
         resJson["content"]["meta"]["pages"] = Math.ceil(count/10.0)
@@ -105,14 +106,14 @@ router.get('/:id/members',async(req,res)=>{
         }
         res.send(resJson)
     }catch(err){
-        res.status(500).send(`Couldn't Fetch Data ${e}`)
+        res.status(500).send(`Couldn't Fetch Data ${err}`)
     }
 })
 
 router.get('/me/owner',async(req,res)=>{
     try{
         const ownerId = req.user.id
-        const role = await Role.findOne({name:"Community Admin"})
+        const role = await Role.findOne({where:{name:"Community Admin"}})
         const communities = await Member.findAll({attributes:['community'],where:{user:ownerId,role:role.id}})
         
 
@@ -141,12 +142,16 @@ router.get('/me/owner',async(req,res)=>{
 
 router.get('/me/member',async(req,res)=>{
     try{
+        //Finding the Member with specified conditions. 
+
         const userId = req.user.id
         const role = await Role.findOne({where:{name:"Community Member"}})
         const communities = await Member.findAll({attributes:['community'],where:{user:userId,role:role.id}})
         
 
         const count = communities.length
+
+        // Modifying Response
 
         let resJson = getJson
         resJson["content"]["meta"]["total"] = count

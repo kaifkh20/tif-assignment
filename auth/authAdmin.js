@@ -4,7 +4,7 @@ const Commmunity = require("../models/Community")
 const authAdmin = async(req,res,next)=>{
     try{
         const userId = req.user.id
-        const communities = await Commmunity.findAll({owner:userId})
+        const communities = await Commmunity.findAll({where:{owner:userId}})
 
         if(communities.length === 0){
             throw new Error('No Admin Access to Any Community')

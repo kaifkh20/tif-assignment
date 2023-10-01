@@ -37,7 +37,7 @@ router.get('/role',async(req,res)=>{
 
         res.send(resJson)
     }catch(err){
-        res.status(500).send('Not Able to Fetch All The Roles')
+        res.status(500).send(`Not able to fetch ${err}`)
     }
 })
 

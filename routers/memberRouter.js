@@ -30,11 +30,11 @@ router.post('/',auth,authAdmin,async(req,res)=>{
         let resJson = postJson
 
         resJson["content"]["data"] = member
-
+        delete resJson["content"]["meta"]
         res.send(resJson)
 
     }catch(err){
-        res.status(400).send(err)
+        res.status(400).send(`Cannot add ${err}`)
     }
 })
 
@@ -43,21 +43,19 @@ router.delete('/:id',auth,async(req,res)=>{
         // Community of the one being deleted
         const id = req.params.id
         let commOfDeleted = await Member.findOne({where:{id}})
-        commOfDeleted = commOfDeleted.community
       
         // the one deleting
         const user = req.user
 
         // Checking For Privellege
 
-        const privilleged = await Member.findOne({user})
+        const privilleged = await Member.findOne({where:{user:user.id}})
         const role = await Role.findOne({where:{id:privilleged.role}})
-        
-        if(role["name"]==='Community Moderator' || role["name"]==='Community Admin' && commOfDeleted===privilleged.community){
+    
+
+        if(role["name"]==="Community Moderator" || role["name"]==="Community Admin" && commOfDeleted["community"]===privilleged.community){
             await Member.destroy({where:{id}})
-
             // Sending The Response
-
             return res.json({status:true})
         }
         
@@ -65,7 +63,7 @@ router.delete('/:id',auth,async(req,res)=>{
 
 
     }catch(err){
-        res.status(400).send(err)
+        res.status(400).send(err.message)
     }
 })
 
